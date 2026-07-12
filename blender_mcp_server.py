@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-blender_mcp v2 — full-surface MCP server that lets Codex (or any MCP client)
-control Blender, replicating the official connector's 26 tools.
+blender_mcp v2: full-surface MCP server that lets Codex (or any MCP client)
+control Blender. Tool surface mirrors ahujasid/blender-mcp's design; talks
+to the official Blender Lab addon's protocol instead.
 
 Bridges MCP tool calls to the Blender MCP add-on's TCP socket server
 (localhost:9876). CLI-variant tools instead launch a headless Blender
@@ -861,7 +862,7 @@ async def blender_execute_python(params: ExecuteCodeInput) -> str:
     "title": "Execute Python Code (CLI)", **_RW})
 async def blender_execute_python_cli(params: ExecuteCodeCliInput) -> str:
     """Execute Python code on a .blend FILE ON DISK in a headless background
-    Blender process — without disturbing the interactive session. Assign a
+    Blender process, without disturbing the interactive session. Assign a
     JSON-serializable dict to `summary` to return data. Changes are DISCARDED
     unless the code explicitly calls bpy.ops.wm.save_mainfile().
 

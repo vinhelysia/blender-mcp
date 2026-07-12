@@ -5,7 +5,7 @@ the Blender MCP add-on you already have installed (TCP port 9876). There's
 also an Agent Skill (`SKILL.md`) that teaches an agent how to actually use
 them well.
 
-Works with anything that speaks MCP + Agent Skills — Codex CLI, Grok Build,
+Works with anything that speaks MCP + Agent Skills: Codex CLI, Grok Build,
 Cursor, Antigravity, Claude Code, probably whatever else you're running too.
 
 CLI-variant tools launch a headless background Blender to inspect `.blend`
@@ -15,14 +15,14 @@ files on disk without touching your open session.
 
 1. Blender 5.1+, with the official Blender Lab MCP extension installed and
    running. This is the first-party extension from
-   [blender.org/lab/mcp-server](https://www.blender.org/lab/mcp-server/) —
-   in Blender, go to Edit > Preferences > Extensions > Get Extensions,
+   [blender.org/lab/mcp-server](https://www.blender.org/lab/mcp-server/).
+   In Blender, go to Edit > Preferences > Extensions > Get Extensions,
    search "MCP", install it, enable it, then click "Start MCP Server" in
    the extension's preferences panel (default `localhost:9876`).
 
    Note: there are other, older community Blender+MCP add-ons floating
    around (different protocol, different port, different install path
-   under the legacy Add-ons system) — this repo talks to the official Lab
+   under the legacy Add-ons system). This repo talks to the official Lab
    extension specifically. If your setup doesn't match the steps above,
    this server won't be able to connect.
 
@@ -32,19 +32,19 @@ files on disk without touching your open session.
        pip install mcp
 
 3. Clone this repo somewhere on disk. Setup below refers to
-   `<repo>/blender_mcp_server.py` — swap in your actual clone path.
+   `<repo>/blender_mcp_server.py`. Swap in your actual clone path.
 
 ## Setup per platform
 
 Every platform needs the same two things done: register
 `blender_mcp_server.py` as an MCP server, then make
 `skill/blender-mcp/SKILL.md` discoverable so the agent knows how to use it.
-No skill support on your platform? Skip that part. The MCP tools still work
-— you just lose the extra guidance.
+No skill support on your platform? Skip that part. The MCP tools still
+work, you just lose the extra guidance.
 
 ### Codex CLI
 
-Add to `config.toml` (default `~/.codex/config.toml` — check `codex doctor`
+Add to `config.toml` (default `~/.codex/config.toml`; check `codex doctor`
 for `CODEX_HOME` if you've customized it):
 
 ```toml
@@ -103,13 +103,13 @@ Add to `~/.gemini/config/mcp_config.json`:
 }
 ```
 
-Copy the skill to `~/.gemini/config/skills/blender-mcp/` — it's the only
+Copy the skill to `~/.gemini/config/skills/blender-mcp/`. It's the only
 path all three Antigravity flavors (CLI, IDE, 2.0) recognize. Project-scoped
 skills work too, at `.agents/skills/blender-mcp/` inside a workspace.
 
 ### Any other Agent Skills / MCP-compatible platform
 
-`SKILL.md` is an open, cross-agent standard — Claude Code, Codex, Cursor,
+`SKILL.md` is an open, cross-agent standard: Claude Code, Codex, Cursor,
 and Antigravity all read the same format. Copying `skill/blender-mcp/`
 as-is into whatever skills directory your agent reads usually just works.
 For MCP registration, look for a `mcpServers` (JSON) or `[mcp_servers.*]`
@@ -125,7 +125,7 @@ above. Several tools already read it as a shared convention.
 
 Once the Blender extension's server is running and at least one platform
 above is registered, just ask your agent to do Blender things. The skill
-kicks in on its own — you don't need to mention it by name:
+kicks in on its own. You don't need to mention it by name:
 
 - "Add a cube to the scene, scale it to 2m, and tell me its dimensions."
 - "Take a screenshot of the viewport."
@@ -134,13 +134,13 @@ kicks in on its own — you don't need to mention it by name:
 `SKILL.md` pushes the agent to inspect the scene first
 (`blender_get_objects_summary`), make one focused change at a time, then
 verify with real numbers instead of just eyeballing a screenshot. Want a
-specific tool directly, no skill guidance involved? Call it by name — e.g.
+specific tool directly, no skill guidance involved? Call it by name, e.g.
 `blender_execute_python` with raw `bpy` code.
 
 ## Troubleshooting
 
 **Codex desktop app can't launch the server on Windows.** This is different
-from a "could not connect to Blender at localhost:9876" error — that one
+from a "could not connect to Blender at localhost:9876" error. That one
 just means Blender isn't open yet. This one means the Python process never
 started at all.
 
@@ -151,7 +151,7 @@ environment can be more restricted than a terminal session, so it may fail
 to find a working `python` even though the same command works fine through
 the terminal, Codex CLI, or Grok Build CLI.
 
-Fastest fix — install [uv](https://docs.astral.sh/uv/) and let it provide a
+Fastest fix: install [uv](https://docs.astral.sh/uv/) and let it provide a
 Python the packaged app can reliably find:
 
     uv python install
@@ -199,10 +199,20 @@ Write / state-changing (7):
 BLENDER_MCP_HOST (default localhost), BLENDER_MCP_PORT (default 9876),
 BLENDER_MCP_TIMEOUT (default 120 s), BLENDER_BINARY (path to blender.exe).
 
+## Credits
+
+The 26-tool surface here is designed in the spirit of
+[ahujasid/blender-mcp](https://github.com/ahujasid/blender-mcp), the
+original, widely-used Blender+LLM connector. This is not a fork and shares
+no code with it: it talks to the different, official Blender Lab MCP
+extension's protocol (null-byte delimited JSON, port 9876) instead of that
+project's community add-on protocol. Credit for the tool-surface idea; the
+protocol and implementation here are independent.
+
 ## Notes
 
 - Requests are short-lived one-shot connections. Multiple agents can share
-  the same Blender instance — just don't fire heavy operations from more
+  the same Blender instance. Just don't fire heavy operations from more
   than one at the same instant.
 - Screenshot tools return images inline as MCP image content. Clients that
   render images can literally see your viewport.

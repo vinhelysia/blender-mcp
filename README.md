@@ -13,7 +13,19 @@ files on disk without touching your open session.
 
 ## Prerequisites
 
-1. Blender, with the MCP add-on installed and its server running (port 9876).
+1. Blender 5.1+, with the official Blender Lab MCP extension installed and
+   running. This is the first-party extension from
+   [blender.org/lab/mcp-server](https://www.blender.org/lab/mcp-server/) —
+   in Blender, go to Edit > Preferences > Extensions > Get Extensions,
+   search "MCP", install it, enable it, then click "Start MCP Server" in
+   the extension's preferences panel (default `localhost:9876`).
+
+   Note: there are other, older community Blender+MCP add-ons floating
+   around (different protocol, different port, different install path
+   under the legacy Add-ons system) — this repo talks to the official Lab
+   extension specifically. If your setup doesn't match the steps above,
+   this server won't be able to connect.
+
 2. Python 3.10+. Install the `mcp` package for whichever Python your agent
    will launch this server with:
 
@@ -108,6 +120,22 @@ For MCP registration, look for a `mcpServers` (JSON) or `[mcp_servers.*]`
 
 Try `.agents/skills/` (project-level) first if your platform isn't listed
 above. Several tools already read it as a shared convention.
+
+## Usage
+
+Once the Blender extension's server is running and at least one platform
+above is registered, just ask your agent to do Blender things. The skill
+kicks in on its own — you don't need to mention it by name:
+
+- "Add a cube to the scene, scale it to 2m, and tell me its dimensions."
+- "Take a screenshot of the viewport."
+- "Export the selected object as GLB to ~/Desktop/model.glb."
+
+`SKILL.md` pushes the agent to inspect the scene first
+(`blender_get_objects_summary`), make one focused change at a time, then
+verify with real numbers instead of just eyeballing a screenshot. Want a
+specific tool directly, no skill guidance involved? Call it by name — e.g.
+`blender_execute_python` with raw `bpy` code.
 
 ## Troubleshooting
 

@@ -108,6 +108,29 @@ The `.agents/skills/` directory (project-level) is an emerging shared
 convention several of the above tools already read — worth trying first if
 your platform isn't listed here.
 
+## Troubleshooting
+
+**Agent can't launch the server at all on Windows** (different from a
+"could not connect to Blender at localhost:9876" error, which just means
+Blender isn't open yet — that one means the Python process itself never
+started).
+
+Windows ships a `python.exe` "app execution alias" stub at
+`%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe`. If that resolves before
+your real Python on PATH — or is the only `python` visible to the
+subprocess environment your agent spawns from — it silently fails instead
+of running your interpreter, even though a real Python is installed and
+works fine in your own terminal.
+
+Fastest fix: install [uv](https://docs.astral.sh/uv/) and let it provide a
+real, reliably-resolvable Python:
+
+    uv python install
+
+Then confirm `where python` (Windows) resolves to a real interpreter before
+the WindowsApps stub, or point the MCP config's `command` at that Python
+directly.
+
 ## Tools (26)
 
 Read-only (19):

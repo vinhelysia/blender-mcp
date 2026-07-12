@@ -1,32 +1,34 @@
 # blender-mcp
 
-An MCP server that lets AI coding agents control Blender — 26 tools bridging
-to the Blender MCP add-on you already have installed (TCP port 9876), plus
-an Agent Skill (`SKILL.md`) that teaches an agent how to use them well.
-Works with any MCP-capable, Agent-Skills-capable agent: Codex CLI, Grok
-Build, Cursor, Antigravity, Claude Code, and others.
+An MCP server that lets AI coding agents control Blender. 26 tools bridge to
+the Blender MCP add-on you already have installed (TCP port 9876). There's
+also an Agent Skill (`SKILL.md`) that teaches an agent how to actually use
+them well.
+
+Works with anything that speaks MCP + Agent Skills — Codex CLI, Grok Build,
+Cursor, Antigravity, Claude Code, probably whatever else you're running too.
 
 CLI-variant tools launch a headless background Blender to inspect `.blend`
 files on disk without touching your open session.
 
 ## Prerequisites
 
-1. Blender with the MCP add-on installed and its server running (port 9876).
-2. Python 3.10+, with the `mcp` package installed for whichever Python your
-   agent will launch this server with:
+1. Blender, with the MCP add-on installed and its server running (port 9876).
+2. Python 3.10+. Install the `mcp` package for whichever Python your agent
+   will launch this server with:
 
        pip install mcp
 
-3. Clone this repo somewhere on disk. All setup below refers to
-   `<repo>/blender_mcp_server.py` — substitute your actual clone path.
+3. Clone this repo somewhere on disk. Setup below refers to
+   `<repo>/blender_mcp_server.py` — swap in your actual clone path.
 
 ## Setup per platform
 
-Every platform below wants the same two things: (1) register
-`blender_mcp_server.py` as an MCP server, and (2) make
+Every platform needs the same two things done: register
+`blender_mcp_server.py` as an MCP server, then make
 `skill/blender-mcp/SKILL.md` discoverable so the agent knows how to use it.
-Skip step 2 for a platform with no skill support — the MCP tools still work,
-the agent just won't have the extra guidance.
+No skill support on your platform? Skip that part. The MCP tools still work
+— you just lose the extra guidance.
 
 ### Codex CLI
 
@@ -43,16 +45,16 @@ Copy the skill so Codex can discover it:
 
     <CODEX_HOME>/skills/blender-mcp/SKILL.md
 
-Verify: `codex mcp list` should show `blender`; `codex exec "Which skill do
+Verify: `codex mcp list` should show `blender`. `codex exec "Which skill do
 you have for Blender work?"` should mention `blender-mcp`.
 
 ### Grok Build CLI
 
     grok mcp add blender python -- <repo>/blender_mcp_server.py
 
-Copy the skill to `~/.agents/skills/blender-mcp/SKILL.md` (shared convention,
-see below) or `.agents/skills/blender-mcp/SKILL.md` inside a specific repo
-for project scope.
+Copy the skill to `~/.agents/skills/blender-mcp/SKILL.md` (the shared
+convention below), or drop it in `.agents/skills/blender-mcp/SKILL.md`
+inside a specific repo for project scope.
 
 Verify: `grok mcp list` and `grok inspect` should both show `blender-mcp`.
 
@@ -71,8 +73,8 @@ Add to `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (global):
 }
 ```
 
-Copy the skill folder into `.cursor/skills/blender-mcp/` in your project so
-Cursor discovers it on the next session.
+Copy the skill folder into `.cursor/skills/blender-mcp/` in your project.
+Cursor picks it up next session.
 
 ### Antigravity (CLI, IDE, Antigravity 2.0)
 
@@ -89,46 +91,45 @@ Add to `~/.gemini/config/mcp_config.json`:
 }
 ```
 
-Copy the skill to `~/.gemini/config/skills/blender-mcp/` — the one location
-recognized by all Antigravity flavors (CLI, IDE, 2.0). Project-scoped skills
-also work at `.agents/skills/blender-mcp/` inside a workspace.
+Copy the skill to `~/.gemini/config/skills/blender-mcp/` — it's the only
+path all three Antigravity flavors (CLI, IDE, 2.0) recognize. Project-scoped
+skills work too, at `.agents/skills/blender-mcp/` inside a workspace.
 
 ### Any other Agent Skills / MCP-compatible platform
 
-`SKILL.md` is an open, cross-agent standard (same format used by Claude
-Code, Codex, Cursor, Antigravity, and others) — copying
-`skill/blender-mcp/` as-is into whatever skills directory your agent reads
-is normally enough. For MCP registration, look for a `mcpServers` (JSON) or
-`[mcp_servers.*]` (TOML) config block and add:
+`SKILL.md` is an open, cross-agent standard — Claude Code, Codex, Cursor,
+and Antigravity all read the same format. Copying `skill/blender-mcp/`
+as-is into whatever skills directory your agent reads usually just works.
+For MCP registration, look for a `mcpServers` (JSON) or `[mcp_servers.*]`
+(TOML) block and add:
 
     command: python
     args: ["<repo>/blender_mcp_server.py"]
 
-The `.agents/skills/` directory (project-level) is an emerging shared
-convention several of the above tools already read — worth trying first if
-your platform isn't listed here.
+Try `.agents/skills/` (project-level) first if your platform isn't listed
+above. Several tools already read it as a shared convention.
 
 ## Troubleshooting
 
-**Codex desktop app can't launch the server on Windows** (different from a
-"could not connect to Blender at localhost:9876" error, which just means
-Blender isn't open yet — that one means the Python process itself never
-started).
+**Codex desktop app can't launch the server on Windows.** This is different
+from a "could not connect to Blender at localhost:9876" error — that one
+just means Blender isn't open yet. This one means the Python process never
+started at all.
 
-Codex ships two things on Windows: a plain CLI executable (inherits your
-normal terminal PATH, works like any other command) and a Store/MSIX-packaged
-desktop app (`OpenAI.Codex`, visible via `Get-AppxPackage`). The packaged app
-can have a more restricted or differently-initialized environment than a
-terminal session, so it may fail to find a working `python` even though the
-same command works fine in your terminal or via Codex CLI / Grok Build CLI.
+Codex ships two things on Windows: a plain CLI executable that inherits
+your normal terminal PATH, and a Store/MSIX-packaged desktop app
+(`OpenAI.Codex`, visible via `Get-AppxPackage`). The packaged app's
+environment can be more restricted than a terminal session, so it may fail
+to find a working `python` even though the same command works fine through
+the terminal, Codex CLI, or Grok Build CLI.
 
-Fastest fix: install [uv](https://docs.astral.sh/uv/) and let it provide a
-Python the packaged app can reliably discover:
+Fastest fix — install [uv](https://docs.astral.sh/uv/) and let it provide a
+Python the packaged app can reliably find:
 
     uv python install
 
-If it's still not found, point the MCP config's `command` directly at the
-Python `uv` installed rather than the bare `python` name.
+Still not found? Point the MCP config's `command` directly at the Python
+`uv` installed instead of the bare `python` name.
 
 ## Tools (26)
 
@@ -172,8 +173,8 @@ BLENDER_MCP_TIMEOUT (default 120 s), BLENDER_BINARY (path to blender.exe).
 
 ## Notes
 
-- Requests are short-lived one-shot connections, so multiple agents can
-  share the same Blender instance — just avoid firing heavy operations from
-  more than one at the same instant.
-- Screenshot tools return images inline as MCP image content; clients that
+- Requests are short-lived one-shot connections. Multiple agents can share
+  the same Blender instance — just don't fire heavy operations from more
+  than one at the same instant.
+- Screenshot tools return images inline as MCP image content. Clients that
   render images can literally see your viewport.

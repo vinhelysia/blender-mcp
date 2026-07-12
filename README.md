@@ -110,26 +110,25 @@ your platform isn't listed here.
 
 ## Troubleshooting
 
-**Agent can't launch the server at all on Windows** (different from a
+**Codex desktop app can't launch the server on Windows** (different from a
 "could not connect to Blender at localhost:9876" error, which just means
 Blender isn't open yet — that one means the Python process itself never
 started).
 
-Windows ships a `python.exe` "app execution alias" stub at
-`%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe`. If that resolves before
-your real Python on PATH — or is the only `python` visible to the
-subprocess environment your agent spawns from — it silently fails instead
-of running your interpreter, even though a real Python is installed and
-works fine in your own terminal.
+Codex ships two things on Windows: a plain CLI executable (inherits your
+normal terminal PATH, works like any other command) and a Store/MSIX-packaged
+desktop app (`OpenAI.Codex`, visible via `Get-AppxPackage`). The packaged app
+can have a more restricted or differently-initialized environment than a
+terminal session, so it may fail to find a working `python` even though the
+same command works fine in your terminal or via Codex CLI / Grok Build CLI.
 
 Fastest fix: install [uv](https://docs.astral.sh/uv/) and let it provide a
-real, reliably-resolvable Python:
+Python the packaged app can reliably discover:
 
     uv python install
 
-Then confirm `where python` (Windows) resolves to a real interpreter before
-the WindowsApps stub, or point the MCP config's `command` at that Python
-directly.
+If it's still not found, point the MCP config's `command` directly at the
+Python `uv` installed rather than the bare `python` name.
 
 ## Tools (26)
 
